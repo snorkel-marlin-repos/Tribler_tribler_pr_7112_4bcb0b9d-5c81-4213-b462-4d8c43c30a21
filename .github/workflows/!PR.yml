@@ -1,0 +1,62 @@
+name: PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+
+jobs:
+
+  # PR is Draft and PR is Ready
+  pytest:
+    uses: ./.github/workflows/pytest.yml
+    with:
+      python-version: 3.8
+      matrix: '{"os": ["ubuntu-latest"]}'
+
+  guitest:
+    uses: ./.github/workflows/guitest.yml
+    with:
+      python-version: 3.8
+      matrix: '{"os": ["windows-latest"]}'
+
+  scripttest:
+    uses: ./.github/workflows/scripttest.yml
+    with:
+      python-version: 3.8
+
+  coverage:
+    uses: ./.github/workflows/coverage.yml
+    with:
+      python-version: 3.8
+
+  # PR is Ready only
+  pytest_ready:
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/pytest.yml
+    with:
+      python-version: 3.8
+      matrix: '{"os": ["windows-latest", "macos-latest"]}'
+
+  guitest_ready:
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/guitest.yml
+    with:
+      python-version: 3.8
+      matrix: '{"os": ["macos-latest", "ubuntu-latest"]}'
+
+  ubuntu_ready:
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/build_ubuntu.yml
+    with:
+      upload: false
+      os: ubuntu-20.04
+      python-version: 3.8
+
+  documentation_ready:
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/documentation.yml
+    with:
+      python-version: 3.8
